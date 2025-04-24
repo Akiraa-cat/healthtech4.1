@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon web" href="../../assets/konsulku-nobg.png">
+    <title>Hasil BMI</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            background-color: #E3F2FD;
+        }
+
+        .container {
+            max-width: 500px;
+            background: white;
+            padding: 20px;
+            margin: 50px auto;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        p {
+            font-size: 1rem;
+            margin: 10px 0;
+        }
+
+        .bmi-wrapper {
+            position: relative;
+            margin: 20px 0;
+        }
+
+        .bmi-bar {
+            display: flex;
+            width: 100%;
+            height: 20px;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+            z-index: 2;
+        }
+
+        .bmi-segment {
+            height: 100%;
+            flex-grow: 1;
+        }
+
+        .bmi-low { background: red; width: 18%; }
+        .bmi-normal { background: green; width: 33%; }
+        .bmi-over { background: yellow; width: 24%; }
+        .bmi-obese { background: red; width: 25%; }
+
+        #bmi-indicator {
+            position: absolute;
+            bottom: -15px;
+            transform: translateX(-50%);
+            text-align: center;
+            z-index: 2;
+        }
+
+        .bmi-value {
+            font-size: .8rem;
+            font-weight: bold;
+            color: white;
+            background: black;
+            padding: 3px 6px;
+            border-radius: 4px;
+        }
+
+        .triangle {
+            width: 0;
+            height: 0;
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
+            border-bottom: 8px solid black;
+            margin: auto;
+        }
+
+        #bmi-advice {
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        #bmi-tips {
+            text-align: left;
+            display: inline-block;
+            margin-top: 10px;
+        }
+
+        #bmi-tips li {
+            font-size: 14px;
+            background: #f9f9f9;
+            padding: 5px 10px;
+            margin: 5px 0;
+            border-left: 4px solid #007BFF;
+            list-style: none;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 5px 10px;
+            background: blue;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 15px;
+            font-size: 1rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1 id="bmi-category">Kategori BMI</h1>
+        <p>Tinggi (cm): <strong id="user-height"></strong> Berat (kg): <strong id="user-weight"></strong></p>        
+        <div class="bmi-wrapper">
+            <div class="bmi-bar">
+                <div class="bmi-segment bmi-low"></div>
+                <div class="bmi-segment bmi-normal"></div>
+                <div class="bmi-segment bmi-over"></div>
+                <div class="bmi-segment bmi-obese"></div>
+    
+            </div>
+            <div id="bmi-indicator">
+                <div class="triangle"></div>
+                <span class="bmi-value">0.0</span>
+            </div>
+        </div>
+    
+        <p id="bmi-advice">Pesan kesehatan</p>
+        <ul id="bmi-tips"></ul>  
+    
+        <br><a href="kalkulatorBMI.html" class="button">Cek Ulang</a>
+    </div>
+
+    <script>
+document.addEventListener("DOMContentLoaded", function () {
+    let height = localStorage.getItem("height");
+    let weight = localStorage.getItem("weight");
+    let bmi = localStorage.getItem("bmi");
+
+    if (!height || !weight || !bmi) {
+        alert("Data tidak ditemukan, silakan hitung ulang!");
+        window.location.href = "kalkulatorBMI.html";
+        return;
+    }
+
+    document.getElementById("user-height").textContent = height;
+    document.getElementById("user-weight").textContent = weight;
+
+    let bmiValue = parseFloat(bmi);
+    document.querySelector(".bmi-value").textContent = bmiValue.toFixed(1);
+
+    // Update posisi indikator di bar
+    let minBMI = 14;
+    let maxBMI = 35;
+    let barWidth = document.querySelector(".bmi-bar").offsetWidth;
+    let position = ((bmiValue - minBMI) / (maxBMI - minBMI)) * barWidth;
+    position = Math.max(10, Math.min(position, barWidth - 10));
+
+    let indicator = document.getElementById("bmi-indicator");
+    indicator.style.left = `${position}px`;
+
+    // Update kategori BMI
+    let category = document.getElementById("bmi-category");
+    let advice = document.getElementById("bmi-advice");
+    let tips = document.getElementById("bmi-tips");
+    tips.innerHTML = "";
+
+    if (bmiValue < 18.5) {
+        category.textContent = "Berat Badan Kurang";
+        advice.innerHTML = "Kamu luar biasa! 💪 Meski berat badanmu rendah, kamu bisa meningkatkan kesehatanmu dengan nutrisi yang tepat!";
+
+        tips.innerHTML = `
+            <li>🍗 Konsumsi makanan tinggi protein seperti daging, telur, dan kacang-kacangan.</li>
+            <li>🥔 Tambah kalori sehat dari sumber seperti alpukat, kentang, dan minyak zaitun.</li>
+            <li>💪 Lakukan latihan kekuatan untuk meningkatkan massa otot.</li>
+            <li>🍞 Jangan melewatkan waktu makan, usahakan makan 3 kali sehari + camilan sehat.</li>
+            <li>🥛 Minum susu tinggi protein untuk membantu pertumbuhan berat badan.</li>
+        `;
+    } else if (bmiValue >= 18.5 && bmiValue < 24.9) {
+        category.textContent = "Berat Badan Ideal";
+        advice.innerHTML = "Keren! 🎉 Berat badanmu berada dalam kisaran sehat. Pertahankan gaya hidup ini untuk tetap sehat dan bugar!";
+
+        tips.innerHTML = `
+            <li>🥗 Pertahankan pola makan seimbang dengan sayur, buah, protein, dan karbohidrat sehat.</li>
+            <li>🏃‍♂️ Rutin berolahraga setidaknya 30 menit sehari untuk menjaga kebugaran.</li>
+            <li>💧 Pastikan tetap terhidrasi dengan minum air putih minimal 2 liter sehari.</li>
+            <li>😴 Cukup tidur (7-9 jam per malam) untuk menjaga kesehatan tubuh.</li>
+            <li>🧘‍♀️ Kelola stres dengan aktivitas menyenangkan seperti yoga atau meditasi.</li>
+        `;
+    } else if (bmiValue >= 25 && bmiValue < 29.9) {
+        category.textContent = "Berat Badan Berlebih";
+        advice.innerHTML = "Tidak masalah! 🌟 Dengan sedikit perubahan pola hidup, kamu bisa mencapai berat badan yang lebih sehat!";
+
+        tips.innerHTML = `
+            <li>🥦 Kurangi konsumsi makanan tinggi gula dan lemak jenuh.</li>
+            <li>🚶‍♂️ Tingkatkan aktivitas fisik seperti berjalan kaki minimal 10.000 langkah sehari.</li>
+            <li>🍽 Makan dalam porsi lebih kecil, tapi lebih sering untuk mengontrol nafsu makan.</li>
+            <li>🥤 Gantilah minuman manis dengan air putih atau teh tanpa gula.</li>
+            <li>🏋️‍♀️ Lakukan latihan kekuatan dan kardio secara rutin untuk membakar lemak.</li>
+        `;
+    } else {
+        category.textContent = "Obesitas";
+        advice.innerHTML = "Kamu tetap hebat! ✨ Dengan langkah yang tepat, kamu bisa mencapai berat badan yang lebih sehat!";
+
+        tips.innerHTML = `
+            <li>🚫 Kurangi konsumsi makanan cepat saji dan tinggi kalori.</li>
+            <li>🍎 Ganti camilan tidak sehat dengan buah dan kacang-kacangan.</li>
+            <li>🚶‍♀️ Mulailah dengan olahraga ringan seperti jalan kaki 30 menit sehari.</li>
+            <li>🛌 Tidur yang cukup dan hindari begadang agar metabolisme tetap optimal.</li>
+            <li>💡 Konsultasikan dengan ahli gizi untuk rencana diet yang lebih sehat.</li>
+        `;
+    }
+});
+
+    </script>
+</body>
+</html>

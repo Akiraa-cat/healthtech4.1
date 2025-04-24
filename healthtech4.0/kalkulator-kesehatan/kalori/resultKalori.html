@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon web" href="../../assets/konsulku-nobg.png">
+    <title>Hasil Kebutuhan Kalori</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #E3F2FD;
+        }
+        .container {
+            max-width: 400px;
+            margin: 50px auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .box {
+            background: #e9ecef;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Hasil Kebutuhan Kalori</h2>
+        <p id="calorieResult">Loading...</p>
+        <div class="box">
+            <h3>Rekomendasi Makanan</h3>
+            <p id="foodRecommendation"></p>
+        </div>
+        <div class="box">
+            <h3>Rekomendasi Olahraga</h3>
+            <p id="exerciseRecommendation"></p>
+        </div>
+        <button onclick="goBack()">Mengerti</button>
+    </div>
+    <script>
+        function loadResult() {
+            let calories = localStorage.getItem("calories");
+            if (!calories) {
+                document.getElementById("calorieResult").innerText = "Data tidak ditemukan. Silakan hitung kembali.";
+                return;
+            }
+            document.getElementById("calorieResult").innerText = `Kebutuhan kalorimu: ${calories} kkal per hari`;
+            
+            let food, exercise;
+            if (calories < 1800) {
+                food = "Konsumsi lebih banyak protein dan karbohidrat kompleks, seperti nasi merah, daging tanpa lemak, dan sayuran segar.";
+                exercise = "Lakukan olahraga ringan seperti jalan kaki atau yoga selama 30 menit sehari.";
+            } else if (calories < 2500) {
+                food = "Pertahankan pola makan seimbang dengan sayur, buah, dan protein seperti ikan atau ayam tanpa kulit.";
+                exercise = "Cobalah jogging, bersepeda, atau berenang selama 45 menit.";
+            } else {
+                food = "Kurangi makanan berlemak tinggi dan gula berlebih. Pilih makanan sehat seperti salad, dada ayam, dan kacang-kacangan.";
+                exercise = "Lakukan latihan kardio intens seperti HIIT atau angkat beban untuk membakar kalori lebih efektif.";
+            }
+            
+            document.getElementById("foodRecommendation").innerText = food;
+            document.getElementById("exerciseRecommendation").innerText = exercise;
+        }
+        
+        function goBack() {
+            localStorage.removeItem("calories");
+            window.location.href = "kalkulatorKalori.html";
+        }
+        
+        window.onload = loadResult;
+    </script>
+</body>
+</html>
