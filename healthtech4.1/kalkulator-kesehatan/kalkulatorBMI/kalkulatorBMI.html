@@ -1,0 +1,36 @@
+    <!DOCTYPE html>
+    <html lang="id">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Kalkulator BMI</title>
+        <link rel="icon web" href="../../assets/konsulku-nobg.png">
+        <link rel="stylesheet" href="styles.css">
+    </head>
+    <body>
+        <div class="container">
+            <h2>Kalkulator Berat Badan Ideal (BMI)</h2>
+            <input type="number" id="height" placeholder="Tinggi Badan (cm)">
+            <input type="number" id="weight" placeholder="Berat Badan (kg)">
+            <button onclick="calculateBMI()">Hitung BMI</button>
+            <button type="button" onclick="window.location.href='../index.html'" class="btn-secondary">Kembali ke Beranda</button>
+        </div>
+        <script>
+        function calculateBMI() {
+        let height = document.getElementById("height").value / 100;
+        let weight = document.getElementById("weight").value;
+        
+        if (height <= 0 || weight <= 0 || isNaN(height) || isNaN(weight)) {
+            alert("Masukkan tinggi dan berat yang valid!");
+            return;
+        }
+
+        let bmi = (weight / (height * height)).toFixed(1);
+        localStorage.setItem("bmi", bmi);  // Simpan BMI di localStorage
+        localStorage.setItem("height", height * 100);  // Simpan tinggi
+        localStorage.setItem("weight", weight);  // Simpan berat
+        window.location.href = "hasil-bmi.html"; // Pindah ke halaman hasil
+    }
+        </script>
+    </body>
+    </html>

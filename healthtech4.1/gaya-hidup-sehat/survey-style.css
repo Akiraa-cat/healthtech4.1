@@ -1,0 +1,181 @@
+:root {
+    --main-color: #007bff;
+    --hover-color: #0056b3;
+    --text-color: #FFF;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #f4f4f4;
+    margin: 0;
+    opacity: 0;
+    animation: fadeIn 1s forwards;
+}
+.container {
+    text-align: center;
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    max-width: 500px;
+    width: 100%;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeSlideIn 0.5s forwards;
+}
+
+.start-container {
+    display: flex;
+    width: 100%; /* Lebih kecil */
+    gap: 10px; /* Jarak antara tombol */
+    margin: auto;
+}
+
+.start-button {
+    flex: 3.5; /* 3/4 bagian */
+    background: var(--main-color);
+    color: var(--text-color);
+    border: none;
+    padding: .4rem;
+    font-size: .9rem;
+    cursor: pointer;
+    border-radius: 8px; /* Biar rounded */
+}
+
+.home-button {
+    flex: .5; /* 1/4 bagian */
+    background: #393a3c;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    font-size: .9rem;
+    border-radius: 10px; /* Sama-sama rounded */
+    width: 100px; /* Biar nggak kepanjangan */
+}
+
+.home-button i {
+    font-size: 20px;
+}
+
+.start-button:hover {
+    background: var(--main-color);
+}
+
+.home-button:hover {
+    background: #2c2d2e;
+}
+
+#options {
+display: flex;
+flex-wrap: wrap;
+justify-content: space-between;
+ }
+
+.button {
+    padding: 10px;
+    flex: 0 0 48%;
+    margin: 10px 0 5px;
+    border: none;
+    background: var(--main-color);
+    color: var(--text-color);
+    cursor: pointer;
+    border-radius: 5px;
+    width: 100%;
+    transition: transform 0.2s;
+}
+.button:hover {
+    background: var(--hover-color);
+    transform: scale(1.05);
+}
+.review-button {
+    padding: 10px;
+    margin-top: 10px;
+    border: none;
+    background: var(--main-color);
+    color: var(--text-color);
+    cursor: pointer;
+    border-radius: 5px;
+    width: 8%;
+    transition: transform 0.2s;
+}
+.back-button {
+    padding: 10px;
+    margin-top: 10px;
+    border: none;
+    background: #393a3c;
+    color: white;
+    cursor: pointer;
+    border-radius: 5px;
+    width: 8%;
+    transition: transform 0.2s;
+}
+.review-button:hover {
+    background-color: var(--hover-color);
+    transform: scale(1.05);
+}
+.back-button:hover {
+    background-color: #2c2d2f;
+    transform: scale(1.05);
+}
+.circle {
+    width: 30px;
+    height: 30px;
+    background: var(--main-color);
+    color: white;
+    font-weight: bold;
+    border-radius: 50%;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 10px;
+    opacity: 0;
+    animation: fadeIn 0.5s forwards;
+}
+.review-container {
+    display: none;
+    overflow-y: auto;
+    max-height: 300px;
+    width: 100%;
+    margin-top: 20px;
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    max-width: 500px;
+}
+.review-box {
+    background: white;
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 5px;
+    text-align: left;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+    opacity: 0;
+    transform: translateY(10px);
+    animation: fadeSlideIn 0.5s forwards;
+}
+.correct { background-color: #90EE90; padding:3px; }
+.wrong { background-color: #FF6961;padding:3px; }
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes fadeSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

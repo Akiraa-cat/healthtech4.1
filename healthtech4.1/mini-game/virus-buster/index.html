@@ -1,0 +1,1330 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virus Buster</title>
+    <link rel="icon web" href="../../assets/konsulku-nobg.png">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/phaser/3.55.2/phaser.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+            background: #f8f8ff;
+            text-align: center;
+        }
+
+        #welcome-screen {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            background: linear-gradient(rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.6)), url('background.png');
+            text-shadow: 0 0 10px rgba(0, 128, 255, 0.7);            
+            background-size: cover;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        #welcome-screen h1 {
+            font-size: 48px;
+            margin-bottom: 30px;
+            color: #66ccff;
+            text-shadow: 0 0 10px rgba(0, 128, 255, 0.7);        }
+
+        .welcome-options {
+            display: flex;
+            flex-direction: column;
+            max-width: 600px;
+            width: 90%;
+            padding: 20px;
+            border-radius: 15px;
+            background: rgba(0, 20, 40, 0.7);
+            box-shadow: 0 0 20px rgba(0, 128, 255, 0.3);
+            margin-bottom: 20px;
+        }
+
+        .difficulty-btn {
+            padding: 12px 25px;
+            margin: 10px;
+            font-size: 18px;
+            cursor: pointer;
+            border: none;
+            border-radius: 8px;
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        .difficulty-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+        }
+
+        .easy { background: #3498db; }
+        .easy:hover { background: #2980b9; }
+        .medium { background: #2980b9; }
+        .medium:hover { background: #1c6ea4; }
+        .hard { background: #1a5276; }
+        .hard:hover { background: #154360; }
+
+        .time-options {
+            margin: 15px 0;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .time-options label {
+            margin: 10px;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .time-options label:hover {
+            background: rgba(0, 128, 255, 0.3);
+        }
+
+        #game-container {
+            display: none;
+        }
+
+        #back-button {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            padding: 10px 20px;
+            background: red;
+            color: white;
+            border: none;
+            cursor: pointer;
+            z-index: 1000;
+        }
+
+        #result-popup, #settings-popup, #help-popup, #pause-popup {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            color: white;
+            z-index: 1001;
+            text-align: center;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            padding: 20px;
+        }
+
+        .popup-title {
+            font-size: 32px;
+            margin-bottom: 20px;
+        }
+
+        .popup-content {
+            width: 80%;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background: rgba(50, 50, 50, 0.8);
+            border-radius: 10px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            margin: 10px;
+            font-size: 18px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            background: #3498db;
+            color: white;
+            transition: background 0.3s ease;
+        }
+
+        .btn:hover {
+            background: #2980b9;
+        }
+
+        .btn-small {
+            padding: 8px 16px;
+            font-size: 14px;
+        }
+
+        .game-controls {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 15px;
+            z-index: 100;
+        }
+
+        .control-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.6);
+            color: white;
+            border: 2px solid white;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            transition: all 0.3s ease;
+        }
+
+        .control-btn:hover {
+            background: rgba(0, 0, 0, 0.8);
+            transform: scale(1.1);
+        }
+
+        /* Slider untuk volume */
+        .slider-container {
+            margin: 20px 0;
+            display: flex;
+            align-items: center;
+        }
+
+        .slider-label {
+            width: 100px;
+            text-align: right;
+            margin-right: 10px;
+        }
+
+        .slider {
+            -webkit-appearance: none;
+            width: 200px;
+            height: 10px;
+            border-radius: 5px;
+            background: #d3d3d3;
+            outline: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #4caf50;
+            cursor: pointer;
+        }
+
+        .language-select {
+            padding: 8px;
+            margin: 10px;
+            font-size: 16px;
+            border-radius: 5px;
+        }
+
+        /* Heart UI */
+        .heart-container {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            display: flex;
+            gap: 5px;
+            z-index: 100;
+        }
+
+        .heart {
+            width: 30px;
+            height: 30px;
+            background-size: contain;
+            background-repeat: no-repeat;
+            opacity: 1;
+        }
+
+        .heart-empty {
+            opacity: 0.3;
+        }
+
+        /* Timer UI */
+        .timer-container {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 99; /* Di bawah game-controls */
+            text-align: center;
+            margin-top: 60px; /* Posisi di bawah game controls */
+        }
+
+        .timer-text {
+            font-size: 18px;
+            color: white;
+            text-shadow: 2px 2px 4px #000000;
+            margin-bottom: 5px;
+        }
+
+        .timer-bar {
+            width: 200px;
+            height: 10px;
+            background: rgba(255, 0, 0, 0.7);
+            border: 2px solid white;
+            border-radius: 10px;
+        }
+
+        .timer-progress {
+            height: 100%;
+            background: rgba(0, 128, 255, 0.7);
+            border-radius: 8px;
+            width: 100%;
+        }
+
+        /* Game UI Overlay */
+        .game-ui {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 50;
+        }
+
+        .game-ui > * {
+            pointer-events: auto;
+        }
+
+        /* Shield effect */
+        .shield-effect {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 4px solid rgba(0, 128, 255, 0.7);
+            box-shadow: 0 0 20px rgba(0, 128, 255, 0.5);
+            animation: pulse 2s infinite;
+            display: none;
+            z-index: 90;
+        }
+
+        .antishake-active {
+            position: relative;
+        }
+
+        .antishake-active::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background-color: red;
+            transform: translateY(-50%) rotate(-30deg);
+        }
+
+        @keyframes shake {
+            0% { transform: translate(0, 0) rotate(0); }
+            25% { transform: translate(-2px, 2px) rotate(-1deg); }
+            50% { transform: translate(2px, -2px) rotate(1deg); }
+            75% { transform: translate(-2px, -2px) rotate(-1deg); }
+            100% { transform: translate(2px, 2px) rotate(0); }
+        }
+
+        .phone-shake {
+            animation: shake 0.5s infinite;
+            display: inline-block;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.5; transform: translate(-50%, -50%) scale(1); }
+            50% { opacity: 0.8; transform: translate(-50%, -50%) scale(1.1); }
+            100% { opacity: 0.5; transform: translate(-50%, -50%) scale(1); }
+        }
+
+    </style>
+</head>
+<body>
+    <div id="welcome-screen">
+        <h1>Virus Buster</h1>
+        
+        <div class="welcome-options">
+            <p>Pilih Kesulitan:</p>
+            <div>
+                <button class="difficulty-btn easy" onclick="startGame('easy')">Easy</button>
+                <button class="difficulty-btn medium" onclick="startGame('medium')">Medium</button>
+                <button class="difficulty-btn hard" onclick="startGame('hard')">Hard</button>
+            </div>
+            
+            <p>Pilih Waktu:</p>
+            <div class="time-options">
+                <label><input type="radio" name="time" value="0" checked> No Time Limit</label>
+                <label><input type="radio" name="time" value="30"> 30s</label>
+                <label><input type="radio" name="time" value="60"> 60s</label>
+                <label><input type="radio" name="time" value="120"> 120s</label>
+            </div>
+        </div>
+        
+        <div>
+            <button class="btn" onclick="showSettings()"><i class="fas fa-cog"></i> Pengaturan</button>
+            <button class="btn" onclick="showHelp()"><i class="fas fa-question-circle"></i> Cara Bermain</button>
+            <button class="btn" onclick="window.location.href='../index.html'"><i class="fas fa-home"></i> Kembali ke Menu</button>
+        </div>
+    </div>
+    
+    <div id="game-container"></div>
+
+    <div class="game-ui" id="game-ui" style="display: none;">
+        <div class="heart-container" id="heart-container">
+            <div class="heart" id="heart-1"></div>
+            <div class="heart" id="heart-2"></div>
+            <div class="heart" id="heart-3"></div>
+        </div>
+
+
+        <div class="game-controls" id="game-controls">
+            <button class="control-btn" id="pause-btn" onclick="togglePause()"><i class="fas fa-pause"></i></button>
+            <button class="control-btn" onclick="showGameSettings()"><i class="fas fa-cog"></i></button>
+            <button class="control-btn" onclick="showGameHelp()"><i class="fas fa-book"></i></button>
+            <button class="control-btn" id="antishake-btn" onclick="toggleAntiShake()">
+                <i class="fas fa-mobile-alt phone-shake"></i>
+            </button>
+        </div>
+
+        <div class="timer-container" id="timer-container">
+            <div class="timer-text" id="timer-text">Time: 60</div>
+            <div class="timer-bar">
+                <div class="timer-progress" id="timer-progress"></div>
+            </div>
+        </div>
+
+        <div class="shield-effect" id="shield-effect"></div>
+    </div>
+
+    <div id="result-popup">
+        <div class="popup-content">
+            <h2 id="result-title" class="popup-title"></h2>
+            <p id="score-info"></p>
+            <button class="btn" onclick="restartGame()">Main Lagi</button>
+            <button class="btn" onclick="goToMenu()">Kembali ke Menu</button>
+        </div>
+    </div>
+
+    <div id="settings-popup">
+        <div class="popup-content">
+            <h2 class="popup-title" id="settings-title"><i class="fas fa-cog"></i> Pengaturan</h2>
+            <!-- <div class="slider-container">
+                <span class="slider-label" id="volume-label">Volume:</span>
+                <input type="range" min="0" max="100" value="100" class="slider" id="volume-slider" onchange="updateVolume(this.value)">
+                <span id="volume-value">100%</span>
+            </div> -->
+            <div>
+                <label for="language-select" id="language-label">Bahasa:</label>
+                <select id="language-select" class="language-select" onchange="changeLanguage(this.value)">
+                    <option value="id">Indonesia</option>
+                    <option value="en">English</option>
+                    <option value="jp">日本語</option>
+                </select>
+            </div>
+            <button class="btn" onclick="closeSettings()">OK</button>
+        </div>
+    </div>
+
+    <div id="help-popup">
+        <div class="popup-content">
+            <h2 class="popup-title" id="help-title"><i class="fas fa-book"></i> Cara Bermain</h2>
+            <div id="help-content">
+                <p>1. Klik virus untuk menghancurkannya</p>
+                <p>2. Jaga manusia di tengah dari serangan virus</p>
+                <p>3. Ambil item shield (biru) untuk perlindungan selama 3 detik</p>
+                <p>4. Ambil item health (hijau) untuk menambah nyawa</p>
+                <p>5. Virus besar (boss) membutuhkan 3 kali klik dan mengurangi 2 nyawa jika menyerang</p>
+            </div>
+            <button class="btn" onclick="closeHelp()">OK</button>
+        </div>
+    </div>
+
+    <div id="pause-popup">
+        <div class="popup-content">
+            <h2 class="popup-title" id="pause-title"><i class="fas fa-pause"></i> Jeda</h2>
+            <button class="btn" onclick="resumeGame()">Lanjutkan</button>
+            <button class="btn" onclick="restartFromPause()">Main Ulang</button>
+            <button class="btn" onclick="exitToMenu()">Kembali ke Beranda</button>
+        </div>
+    </div>
+    
+    <script>
+
+        let antiShakeEnabled = false;
+
+        function toggleAntiShake() {
+            antiShakeEnabled = !antiShakeEnabled;
+            const btn = document.getElementById('antishake-btn');
+            
+            if (antiShakeEnabled) {
+                btn.classList.add('antishake-active');
+                btn.style.background = 'rgba(0, 128, 255, 0.6)';
+            } else {
+                btn.classList.remove('antishake-active');
+                btn.style.background = 'rgba(0, 0, 0, 0.6)';
+            }
+        }
+    
+    let game;
+    let difficulty = 'easy';
+    let timeOption = 0;
+    let gameVolume = 100;
+    let currentLanguage = 'id';
+    let isPaused = false;
+    let gameInstance = null;
+
+    const translations = {
+        id: {
+            title: "Virus Buster",
+            difficulty: "Pilih Kesulitan:",
+            easy: "Mudah",
+            medium: "Sedang",
+            hard: "Sulit",
+            timeSelect: "Pilih Waktu:",
+            noTimeLimit: "Tanpa Waktu",
+            settings: "Pengaturan",
+            howToPlay: "Cara Bermain",
+            health:"Nyawa",
+            back: "Kembali",
+            playAgain: "Main Lagi",
+            backToMenu: "Kembali ke Menu",
+            volume: "Volume:",
+            language: "Bahasa:",
+            ok: "OK",
+            helpTitle: "Cara Bermain",
+            help1: "1. Klik virus untuk menghancurkannya",
+            help2: "2. Jaga manusia di tengah dari serangan virus",
+            help3: "3. Ambil item shield (biru) untuk perlindungan selama 3 detik",
+            help4: "4. Ambil item health (hijau) untuk menambah nyawa",
+            help5: "5. Virus besar (boss) membutuhkan 3 kali klik dan mengurangi 2 nyawa jika menyerang",
+            score: "Skor:",
+            time: "Waktu:",
+            shield: "Perisai:",
+            shieldActive: "Aktif",
+            shieldInactive: "Tidak Aktif",
+            shieldSeconds: "detik",
+            gameOver: "Game Over! Nyawa habis.",
+            victory: "Selamat! Kamu menang!",
+            pause: "Jeda",
+            resume: "Lanjutkan",
+            restart: "Main Ulang",
+            exit: "Kembali ke Beranda"
+        },
+        en: {
+            title: "Virus Buster",
+            difficulty: "Select Difficulty:",
+            easy: "Easy",
+            medium: "Medium",
+            hard: "Hard",
+            timeSelect: "Select Time:",
+            noTimeLimit: "No Time Limit",
+            settings: "Settings",
+            howToPlay: "How To Play",
+            health: "Health",
+            back: "Back",
+            playAgain: "Play Again",
+            backToMenu: "Back to Menu",
+            volume: "Volume:",
+            language: "Language:",
+            ok: "OK",
+            helpTitle: "How To Play",
+            help1: "1. Click on viruses to destroy them",
+            help2: "2. Protect the human in the center from virus attacks",
+            help3: "3. Collect shield items (blue) for 3 seconds of protection",
+            help4: "4. Collect health items (green) to gain extra lives",
+            help5: "5. Large viruses (bosses) require 3 clicks and reduce 2 lives if they attack",
+            score: "Score:",
+            time: "Time:",
+            shield: "Shield:",
+            shieldActive: "Active",
+            shieldInactive: "Inactive",
+            shieldSeconds: "seconds",
+            gameOver: "Game Over! No lives left.",
+            victory: "Congratulations! You win!",
+            pause: "Pause",
+            resume: "Resume",
+            restart: "Restart",
+            exit: "Exit to Menu"
+        },
+        jp: {
+            title: "ウイルスバスター",
+            difficulty: "難易度を選択:",
+            easy: "簡単",
+            medium: "普通",
+            hard: "難しい",
+            timeSelect: "時間を選択:",
+            noTimeLimit: "時間制限なし",
+            settings: "設定",
+            howToPlay: "遊び方",
+            health: "ライフ",
+            back: "戻る",
+            playAgain: "もう一度",
+            backToMenu: "メニューに戻る",
+            volume: "音量:",
+            language: "言語:",
+            ok: "OK",
+            helpTitle: "遊び方",
+            help1: "1. ウイルスをクリックして破壊する",
+            help2: "2. 中央の人間をウイルスの攻撃から守る",
+            help3: "3. シールドアイテム（青）を取得して3秒間保護",
+            help4: "4. 体力アイテム（緑）を取得して命を増やす",
+            help5: "5. 大きなウイルス（ボス）は3回クリックが必要で、攻撃されると2命減る",
+            score: "スコア:",
+            time: "時間:",
+            shield: "シールド:",
+            shieldActive: "有効",
+            shieldInactive: "無効",
+            shieldSeconds: "秒",
+            gameOver: "ゲームオーバー！ライフがなくなりました。",
+            victory: "おめでとう！勝利しました！",
+            pause: "一時停止",
+            resume: "再開",
+            restart: "リスタート",
+            exit: "メニューに戻る"
+        }
+    };
+
+    function getText(key) {
+        return translations[currentLanguage][key] || translations.id[key];
+    }
+
+    function changeLanguage(lang) {
+        currentLanguage = lang;
+        updateUILanguage();
+    }
+
+    function updateUILanguage() {
+        document.querySelector('#welcome-screen h1').textContent = getText('title');
+        document.querySelector('#welcome-screen p:first-of-type').textContent = getText('difficulty');
+        document.querySelectorAll('.difficulty-btn')[0].textContent = getText('easy');
+        document.querySelectorAll('.difficulty-btn')[1].textContent = getText('medium');
+        document.querySelectorAll('.difficulty-btn')[2].textContent = getText('hard');
+        document.querySelector('#welcome-screen p:nth-of-type(2)').textContent = getText('timeSelect');
+        document.querySelectorAll('#welcome-screen .btn')[0].innerHTML = '<i class="fas fa-cog"></i> ' + getText('settings');
+        document.querySelectorAll('#welcome-screen .btn')[1].innerHTML = '<i class="fas fa-question-circle"></i> ' + getText('howToPlay');
+
+        document.getElementById('back-button').textContent = getText('back');
+
+        // Update settings popup
+        document.getElementById('settings-title').innerHTML = '<i class="fas fa-cog"></i> ' + getText('settings');
+        document.getElementById('volume-label').textContent = getText('volume');
+        document.getElementById('language-label').textContent = getText('language');
+        document.querySelector('#settings-popup .btn').textContent = getText('ok');
+
+        // Update help popup
+        document.getElementById('help-title').innerHTML = '<i class="fas fa-book"></i> ' + getText('helpTitle');
+        const helpContent = document.getElementById('help-content');
+        helpContent.innerHTML = `
+            <p>${getText('help1')}</p>
+            <p>${getText('help2')}</p>
+            <p>${getText('help3')}</p>
+            <p>${getText('help4')}</p>
+            <p>${getText('help5')}</p>
+        `;
+        document.querySelector('#help-popup .btn').textContent = getText('ok');
+
+        // Update pause popup
+        document.getElementById('pause-title').innerHTML = '<i class="fas fa-pause"></i> ' + getText('pause');
+        document.querySelectorAll('#pause-popup .btn')[0].textContent = getText('resume');
+        document.querySelectorAll('#pause-popup .btn')[1].textContent = getText('restart');
+        document.querySelectorAll('#pause-popup .btn')[2].textContent = getText('exit');
+
+        // Update radio button label
+        document.querySelector('label input[value="0"]').nextSibling.textContent = " " + getText('noTimeLimit');
+
+        // Update timer text if game is active
+        if (timeOption > 0) {
+            document.getElementById('timer-text').textContent = getText('time') + ': ' + timeOption;
+        } else {
+            document.getElementById('timer-text').textContent = getText('noTimeLimit');
+        }
+
+        // If game is running, update game UI text
+        if (gameInstance && gameInstance.scene.isActive('VirusBuster')) {
+            const scene = gameInstance.scene.getScene('VirusBuster');
+            if (scene) {
+                scene.updateLanguage();
+            }
+        }
+    }
+
+    function updateVolume(value) {
+        gameVolume = value;
+        document.getElementById('volume-value').textContent = value + '%';
+    }
+
+    function showSettings() {
+        document.getElementById('settings-popup').style.display = 'flex';
+    }
+
+    function closeSettings() {
+        document.getElementById('settings-popup').style.display = 'none';
+        if (isPaused && gameInstance) {
+            gameInstance.scene.resume('VirusBuster');
+            isPaused = false;
+        }
+    }
+
+    function showGameSettings() {
+        isPaused = true;
+        if (gameInstance) {
+            gameInstance.scene.pause('VirusBuster');
+        }
+        document.getElementById('settings-popup').style.display = 'flex';
+    }
+
+    function showHelp() {
+        document.getElementById('help-popup').style.display = 'flex';
+    }
+
+    function showGameHelp() {
+        isPaused = true;
+        if (gameInstance) {
+            gameInstance.scene.pause('VirusBuster');
+        }
+        document.getElementById('help-popup').style.display = 'flex';
+    }
+
+    function closeHelp() {
+        document.getElementById('help-popup').style.display = 'none';
+        if (isPaused && gameInstance) {
+            gameInstance.scene.resume('VirusBuster');
+            isPaused = false;
+        }
+    }
+
+    function togglePause() {
+        if (!gameInstance) return;
+        
+        if (isPaused) {
+            document.getElementById('pause-popup').style.display = 'none';
+            gameInstance.scene.resume('VirusBuster');
+            document.getElementById('pause-btn').innerHTML = '<i class="fas fa-pause"></i>';
+        } else {
+            gameInstance.scene.pause('VirusBuster');
+            document.getElementById('pause-popup').style.display = 'flex';
+            document.getElementById('pause-btn').innerHTML = '<i class="fas fa-play"></i>';
+        }
+        isPaused = !isPaused;
+    }
+
+    function resumeGame() {
+        document.getElementById('pause-popup').style.display = 'none';
+        if (gameInstance) {
+            gameInstance.scene.resume('VirusBuster');
+            isPaused = false;
+            document.getElementById('pause-btn').innerHTML = '<i class="fas fa-pause"></i>';
+        }
+    }
+
+    function restartFromPause() {
+        document.getElementById('pause-popup').style.display = 'none';
+        restartGame();
+    }
+
+    function exitToMenu() {
+        document.getElementById('pause-popup').style.display = 'none';
+        goToMenu();
+    }
+
+    function startGame(selectedDifficulty) {
+        difficulty = selectedDifficulty;
+        const selectedTime = document.querySelector('input[name="time"]:checked');
+        timeOption = selectedTime ? parseInt(selectedTime.value) : 0;
+
+        document.getElementById('welcome-screen').style.display = 'none';
+        document.getElementById('game-container').style.display = 'block';
+        document.getElementById('game-ui').style.display = 'block';
+        document.getElementById('result-popup').style.display = 'none';
+        document.getElementById('pause-popup').style.display = 'none';
+
+        // Update timer display
+        if (timeOption > 0) {
+            document.getElementById('timer-text').textContent = getText('time') + ': ' + timeOption;
+            document.getElementById('timer-container').style.display = 'block';
+        } else {
+            document.getElementById('timer-text').textContent = getText('noTimeLimit');
+            document.getElementById('timer-container').style.display = 'block';
+        }
+
+        isPaused = false;
+        createGame();
+    }
+
+    function updateHeartDisplay(health) {
+        const heartContainer = document.getElementById('heart-container');
+        heartContainer.innerHTML = ''; // Clear existing hearts
+        
+        // Tentukan max health berdasarkan difficulty
+        let maxHealth = 3;
+        switch(difficulty) {
+            case 'easy': maxHealth = 10; break;
+            case 'medium': maxHealth = 5; break;
+            case 'hard': maxHealth = 3; break;
+        }
+        
+        // Buat hearts sesuai maxHealth
+        for (let i = 0; i < maxHealth; i++) {
+            const heart = document.createElement('div');
+            heart.className = 'heart';
+            heart.id = 'heart-' + (i+1);
+            if (i < health) {
+                heart.style.backgroundImage = "url('heart.png')";
+                heart.style.opacity = "1";
+            } else {
+                heart.style.backgroundImage = "url('heart.png')";
+                heart.style.opacity = "0.3";
+            }
+            heartContainer.appendChild(heart);
+        }
+    }
+
+    function updateTimerDisplay(timeLeft, initialTime) {
+        if (timeOption <= 0) return;
+        
+        const timerText = document.getElementById('timer-text');
+        const timerProgress = document.getElementById('timer-progress');
+        
+        timerText.textContent = getText('time') + ': ' + timeLeft;
+        const percentage = (timeLeft / initialTime) * 100;
+        timerProgress.style.width = percentage + '%';
+        
+        // Change color based on time left
+        if (percentage > 60) {
+            timerProgress.style.background = 'rgba(0, 255, 0, 0.7)';
+        } else if (percentage > 30) {
+            timerProgress.style.background = 'rgba(255, 255, 0, 0.7)';
+        } else {
+            timerProgress.style.background = 'rgba(255, 0, 0, 0.7)';
+        }
+    }
+
+    function updateShieldDisplay(active, timeLeft) {
+        const shieldEffect = document.getElementById('shield-effect');
+        if (active) {
+            shieldEffect.style.display = 'block';
+        } else {
+            shieldEffect.style.display = 'none';
+        }
+    }
+
+    function createGame() {
+        gameInstance = new Phaser.Game({
+            type: Phaser.AUTO,
+            width: window.innerWidth,
+            height: window.innerHeight,
+            scene: VirusBuster,
+            physics: { default: 'arcade', arcade: { debug: false } },
+            scale: { mode: Phaser.Scale.RESIZE }
+        });
+        game = gameInstance;
+    }
+
+    function showResult(title, score) {
+        let highScore = localStorage.getItem('virusBusterHighScore') || 0;
+        if (score > highScore) {
+            localStorage.setItem('virusBusterHighScore', score);
+            highScore = score;
+        }
+
+        document.getElementById('result-title').innerText = title;
+        document.getElementById('score-info').innerText = `${getText('score')} ${score} | High Score: ${highScore}`;
+
+        const popup = document.getElementById('result-popup');
+        popup.style.display = 'flex';
+
+        // Delay tombol muncul
+        const buttons = popup.querySelectorAll('button');
+        buttons.forEach(btn => btn.style.display = 'none');
+
+        setTimeout(() => {
+            buttons.forEach(btn => btn.style.display = 'inline-block');
+        }, 1000); // Tombol muncul setelah 1 detik
+    }
+
+    function restartGame() {
+        document.getElementById('result-popup').style.display = 'none';
+        if (gameInstance) {
+            gameInstance.destroy(true);
+        }
+        isPaused = false;
+        document.getElementById('pause-btn').innerHTML = '<i class="fas fa-pause"></i>';
+        createGame(); // Gunakan settingan difficulty dan timer yang sama
+    }
+
+    function goToMenu() {
+    // Sembunyikan semua elemen kecuali welcome screen
+    const elementsToHide = [
+        'result-popup',
+        'game-container',
+        'back-button',
+        'game-ui',
+    ];
+
+    elementsToHide.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.style.display = 'none';
+    });
+
+    const welcome = document.getElementById('welcome-screen');
+    if (welcome) welcome.style.display = 'flex';
+
+    if (typeof gameInstance !== 'undefined' && gameInstance) {
+        gameInstance.destroy(true);
+        gameInstance = null;
+    }
+}
+
+
+    function backToMenu() {
+        document.getElementById('back-button').style.display = 'none';
+        document.getElementById('game-container').style.display = 'none';
+        document.getElementById('game-ui').style.display = 'none';
+        document.getElementById('welcome-screen').style.display = 'flex';
+        if (gameInstance) {
+            gameInstance.destroy(true);
+        }
+    }
+
+    class VirusBuster extends Phaser.Scene {
+        constructor() {
+            super({ key: 'VirusBuster' });
+        }
+
+        preload() {
+            this.load.image('virus', '../../assets/virus.png');
+            this.load.image('bossVirus', '../../assets/boss.png');
+            this.load.image('human', '../../assets/human.png');
+            this.load.image('background', '../../assets/bg.png');
+            this.load.image('heart', '../../assets/heart.png');
+            this.load.image('shieldBuff', '../../assets/shield.png');
+            this.load.image('healthBuff', '../../assets/heart.png');
+        }
+
+        create() {
+            this.add.image(window.innerWidth / 2, window.innerHeight / 2, 'background')
+                .setDisplaySize(window.innerWidth, window.innerHeight);
+
+            this.human = this.physics.add.sprite(window.innerWidth / 2, window.innerHeight / 2, 'human');
+            this.human.setSize(this.human.width * .8, this.human.height * .8);
+            this.human.setDisplaySize(60, 100);
+
+            this.health = 3;
+            this.score = 0;
+            this.timeLeft = timeOption;
+            this.shieldActive = false;
+            this.shieldTimer = 0;
+            this.initialTime = this.timeLeft;
+
+            updateHeartDisplay(this.health);
+            if (timeOption > 0) {
+                updateTimerDisplay(this.timeLeft, this.initialTime);
+            }
+            
+            this.scoreText = this.add.text(10, 10, getText('score') + ' 0', { 
+                fontSize: '24px', 
+                fill: '#fff',
+                stroke: '#000',
+                strokeThickness: 3
+            });
+
+            this.healthBar = this.add.graphics();
+            this.healthBarBg = this.add.graphics();
+            this.updateHealthBar();
+            
+            this.viruses = this.physics.add.group();
+            this.bossViruses = this.physics.add.group();
+            this.buffs = this.physics.add.group();
+            
+            this.setupDifficulty();
+            
+            this.spawnVirusEvent = this.time.addEvent({
+                delay: this.virusSpawnRate,
+                callback: this.spawnVirus,
+                callbackScope: this,
+                loop: true
+            });
+            
+            this.spawnBossEvent = this.time.addEvent({
+                delay: this.bossSpawnRate,
+                callback: this.spawnBossVirus,
+                callbackScope: this,
+                loop: true
+            });
+            
+            this.spawnBuffEvent = this.time.addEvent({
+                delay: this.buffSpawnRate,
+                callback: this.spawnBuff,
+                callbackScope: this,
+                loop: true
+            });
+
+            // Timer untuk game jika dipilih
+            if (this.timeLeft > 0) {
+                this.timer = this.time.addEvent({ 
+                    delay: 1000, 
+                    callback: this.updateTimer, 
+                    callbackScope: this, 
+                    loop: true 
+                });
+            }
+
+            // Collision detection
+            this.physics.add.overlap(this.viruses, this.human, this.virusHitsHuman, null, this);
+            this.physics.add.overlap(this.bossViruses, this.human, this.bossVirusHitsHuman, null, this);
+            this.physics.add.overlap(this.buffs, this.human, this.collectBuff, null, this);
+        }
+
+        setupDifficulty() {
+            switch(difficulty) {
+                case 'easy':
+                    this.virusSpeed = 100;
+                    this.virusSpawnRate = 1500;
+                    this.bossSpawnRate = 15000;
+                    this.buffSpawnRate = 10000;
+                    this.bossHealth = 3;
+                    this.health = 10; // 10 nyawa untuk easy
+                    break;
+                case 'medium':
+                    this.virusSpeed = 130;
+                    this.virusSpawnRate = 1000;
+                    this.bossSpawnRate = 10000;
+                    this.buffSpawnRate = 15000;
+                    this.bossHealth = 4;
+                    this.health = 5; // 5 nyawa untuk medium
+                    break;
+                case 'hard':
+                    this.virusSpeed = 170;
+                    this.virusSpawnRate = 800;
+                    this.bossSpawnRate = 8000;
+                    this.buffSpawnRate = 20000;
+                    this.bossHealth = 5;
+                    this.health = 3; // 3 nyawa untuk hard
+                    break;
+            }
+            
+            // Update tampilan health dari awal
+            updateHeartDisplay(this.health);
+            this.updateHealthBar();
+        }
+
+        updateLanguage() {
+            // Update teks dalam game
+            this.scoreText.setText(getText('score') + ' ' + this.score);
+        }
+
+        update(time, delta) {
+            // Update shield jika aktif
+            if (this.shieldActive) {
+                this.shieldTimer -= delta;
+                
+                // Update shield UI
+                updateShieldDisplay(true, Math.ceil(this.shieldTimer/1000));
+                
+                if (this.shieldTimer <= 0) {
+                    this.shieldActive = false;
+                    updateShieldDisplay(false, 0);
+                }
+            }
+        }
+
+        updateHealthBar() {
+            let maxHealth = 3;
+            switch(difficulty) {
+                case 'easy': maxHealth = 10; break;
+                case 'medium': maxHealth = 5; break;
+                case 'hard': maxHealth = 3; break;
+            }
+            
+            this.healthBarBg.clear();
+            this.healthBarBg.fillStyle(0x000000, 0.5);
+            this.healthBarBg.fillRect(10, 50, 150, 20);
+            
+            this.healthBar.clear();
+            this.healthBar.fillStyle(0x3498db);
+            const healthWidth = (this.health / maxHealth) * 150;
+            this.healthBar.fillRect(10, 50, healthWidth, 20);
+            
+            if (!this.healthText) {
+                this.healthText = this.add.text(15, 50, getText('health') + ': ' + this.health + '/' + maxHealth, { 
+                    fontSize: '18px', 
+                    fill: '#fff',
+                    stroke: '#000',
+                    strokeThickness: 2
+                });
+            } else {
+                this.healthText.setText(getText('health') + ': ' + this.health + '/' + maxHealth);
+            }
+        }
+
+        updateTimer() {
+            if (this.timeLeft <= 0) return;
+            
+            this.timeLeft--;
+            updateTimerDisplay(this.timeLeft, this.initialTime);
+            
+            if (this.timeLeft <= 0) {
+                this.gameWin();
+            }
+        }
+
+        spawnVirus() {
+            const side = Phaser.Math.Between(0, 3); // 0:atas, 1:kanan, 2:bawah, 3:kiri
+            let x, y;
+            
+            switch(side) {
+                case 0: // atas
+                    x = Phaser.Math.Between(0, window.innerWidth);
+                    y = -20;
+                    break;
+                case 1: // kanan
+                    x = window.innerWidth + 20;
+                    y = Phaser.Math.Between(0, window.innerHeight);
+                    break;
+                case 2: // bawah
+                    x = Phaser.Math.Between(0, window.innerWidth);
+                    y = window.innerHeight + 20;
+                    break;
+                case 3: // kiri
+                    x = -20;
+                    y = Phaser.Math.Between(0, window.innerHeight);
+                    break;
+            }
+            
+            // Buat virus baru
+            const virus = this.viruses.create(x, y, 'virus');
+            virus.setDisplaySize(40, 40);
+            
+            // Arahkan virus menuju human
+            const angle = Phaser.Math.Angle.Between(virus.x, virus.y, this.human.x, this.human.y);
+            const velocityX = Math.cos(angle) * this.virusSpeed;
+            const velocityY = Math.sin(angle) * this.virusSpeed;
+            
+            virus.setVelocity(velocityX, velocityY);
+            
+            virus.setInteractive();
+            virus.on('pointerdown', () => {
+                virus.destroy();
+                this.score += 10;
+                this.scoreText.setText(getText('score') + ' ' + this.score);
+            });
+            
+            this.time.delayedCall(10000, () => {
+                if (virus && virus.active) {
+                    virus.destroy();
+                }
+            });
+        }
+
+        spawnBossVirus() {
+            const side = Phaser.Math.Between(0, 3); // 0:atas, 1:kanan, 2:bawah, 3:kiri
+            let x, y;
+            
+            switch(side) {
+                case 0: // atas
+                    x = Phaser.Math.Between(0, window.innerWidth);
+                    y = -40;
+                    break;
+                case 1: // kanan
+                    x = window.innerWidth + 40;
+                    y = Phaser.Math.Between(0, window.innerHeight);
+                    break;
+                case 2: // bawah
+                    x = Phaser.Math.Between(0, window.innerWidth);
+                    y = window.innerHeight + 40;
+                    break;
+                case 3: // kiri
+                    x = -40;
+                    y = Phaser.Math.Between(0, window.innerHeight);
+                    break;
+            }
+            
+            const bossVirus = this.bossViruses.create(x, y, 'bossVirus');
+            bossVirus.setDisplaySize(180, 180);
+            bossVirus.health = this.bossHealth;
+            
+            const angle = Phaser.Math.Angle.Between(bossVirus.x, bossVirus.y, this.human.x, this.human.y);
+            const velocityX = Math.cos(angle) * (this.virusSpeed * 0.7); 
+            const velocityY = Math.sin(angle) * (this.virusSpeed * 0.7);
+            
+            bossVirus.setVelocity(velocityX, velocityY);
+            
+            bossVirus.setInteractive();
+            bossVirus.on('pointerdown', () => {
+                bossVirus.health -= 1;
+                
+                this.tweens.add({
+                    targets: bossVirus,
+                    scale: { from: .8, to: .5 },
+                    duration: 200,
+                    yoyo: false
+                });
+                
+                if (bossVirus.health <= 0) {
+                    bossVirus.destroy();
+                    this.score += 50;
+                    this.scoreText.setText(getText('score') + ' ' + this.score);
+                }
+            });
+            
+            this.time.delayedCall(15000, () => {
+                if (bossVirus && bossVirus.active) {
+                    bossVirus.destroy();
+                }
+            });
+        }
+
+        spawnBuff() {
+            const buffType = Phaser.Math.Between(0, 1);
+            
+            const x = Phaser.Math.Between(50, window.innerWidth - 50);
+            const y = Phaser.Math.Between(50, window.innerHeight - 50);
+            
+            let buff;
+            if (buffType === 0) {
+                buff = this.buffs.create(x, y, 'shieldBuff');
+                buff.type = 'shield';
+            } else {
+                buff = this.buffs.create(x, y, 'healthBuff');
+                buff.type = 'health';
+            }
+            
+            buff.setDisplaySize(20, 20);
+            
+            this.tweens.add({
+                targets: buff,
+                scale: { from: .4, to: .6 },
+                alpha: { from: 0.8, to: 1 },
+                duration: 1000,
+                yoyo: true,
+                repeat: -1
+            });
+            
+            this.time.delayedCall(5000, () => {
+                if (buff && buff.active) {
+                    buff.destroy();
+                }
+            });
+        }
+
+        virusHitsHuman(human, virus) {
+            if (this.shieldActive) {
+                virus.destroy();
+                return;
+            }
+            
+            virus.destroy();
+            this.health -= 1;
+            updateHeartDisplay(this.health);
+            
+            if (!antiShakeEnabled) {
+                this.cameras.main.shake(200, 0.02);
+            }
+            
+            if (this.health <= 0) {
+                this.gameOver();
+            } else {
+                this.tweens.add({
+                    targets: human,
+                    alpha: { from: 0.5, to: 1 },
+                    duration: 200,
+                    repeat: 2
+                });
+            }
+            this.updateHealthBar();
+        }
+
+        bossVirusHitsHuman(human, bossVirus) {
+            if (this.shieldActive) {
+                bossVirus.destroy();
+                return;
+            }
+            
+            bossVirus.destroy();
+            this.health -= 2;
+            updateHeartDisplay(this.health);
+            
+            if (!antiShakeEnabled) {
+                this.cameras.main.shake(300, 0.05);
+            }
+            
+            if (this.health <= 0) {
+                this.gameOver();
+            } else {
+                this.tweens.add({
+                    targets: human,
+                    alpha: { from: 0.3, to: 1 },
+                    duration: 300,
+                    repeat: 3
+                });
+            }
+            this.updateHealthBar();
+        }
+
+        collectBuff(human, buff) {
+            if (buff.type === 'shield') {
+                this.shieldActive = true;
+                this.shieldTimer = 3000;
+                updateShieldDisplay(true, 3);
+            } else if (buff.type === 'health' && this.health < 3) {
+                this.health += 1;
+                updateHeartDisplay(this.health);
+            }
+            
+            buff.destroy();
+        }
+
+        gameOver() {
+            this.stopAllEvents();
+            
+            showResult(getText('gameOver'), this.score);
+        }
+
+        gameWin() {
+            this.stopAllEvents();
+            
+            showResult(getText('victory'), this.score);
+        }
+
+        stopAllEvents() {
+            if (this.spawnVirusEvent) this.spawnVirusEvent.remove();
+            if (this.spawnBossEvent) this.spawnBossEvent.remove();
+            if (this.spawnBuffEvent) this.spawnBuffEvent.remove();
+            if (this.timer) this.timer.remove();
+            
+            // Hentikan semua virus
+            this.viruses.getChildren().forEach(virus => {
+                virus.body.setVelocity(0, 0);
+            });
+            
+            this.bossViruses.getChildren().forEach(boss => {
+                boss.body.setVelocity(0, 0);
+            });
+        }
+    }
+
+    // Set up resize event listener
+    window.addEventListener('resize', function() {
+        if (gameInstance) {
+            gameInstance.scale.resize(window.innerWidth, window.innerHeight);
+        }
+    });
+
+    // Initialize language
+    updateUILanguage();
+    </script>
+</body>
+</html>

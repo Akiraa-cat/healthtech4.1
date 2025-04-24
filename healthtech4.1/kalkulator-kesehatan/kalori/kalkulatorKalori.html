@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon web" href="../../assets/konsulku-nobg.png">
+    <title>Kalkulator Kebutuhan Kalori</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #E3F2FD;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 350px;
+        }
+        h2 {
+            text-align: center;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            font-size: .8rem;
+            font-weight: lighter;
+            display: block;
+            margin: 0 5px 3px;
+        }
+        select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        input {
+            width: 95%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 10px;
+            background-color: #007bff;
+            border: none;
+            color: white;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .btn:hover {
+            background-color: #0056b3;
+        }
+        .btn-secondary {
+            background-color: transparent;
+            border: 2px solid #000;
+            color: #000;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 5px;
+            margin-top: 10px;
+            cursor: pointer;
+            display: block;
+            width: 100%;
+            transition: ease-in .2s;
+        }
+
+        .btn-secondary:hover {
+            background-color: #191919;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Kalkulator Kebutuhan Kalori</h2>
+        <div class="form-group">
+            <label for="weight">Berat Badan (kg):</label>
+            <input type="number" id="weight" placeholder="Masukkan berat badan">
+        </div>
+        <div class="form-group">
+            <label for="height">Tinggi Badan (cm):</label>
+            <input type="number" id="height" placeholder="Masukkan tinggi badan">
+        </div>
+        <div class="form-group">
+            <label for="age">Usia:</label>
+            <input type="number" id="age" placeholder="Masukkan usia">
+        </div>
+        <div class="form-group">
+            <label for="gender">Jenis Kelamin:</label>
+            <select id="gender">
+                <option value="male">Laki-laki</option>
+                <option value="female">Perempuan</option>
+            </select>
+        </div>
+        <button class="btn" onclick="calculateCalories()">Hitung Kalori</button>
+        <button type="button" onclick="window.location.href='../index.html'" class="btn-secondary">Kembali ke Beranda</button>
+    </div>
+    <script>
+        function calculateCalories() {
+            let weight = document.getElementById('weight').value;
+            let height = document.getElementById('height').value;
+            let age = document.getElementById('age').value;
+            let gender = document.getElementById('gender').value;
+            
+            if (!weight || !height || !age) {
+                alert("Harap isi semua kolom!");
+                return;
+            }
+            
+            let bmr;
+            if (gender === "male") {
+                bmr = 10 * weight + 6.25 * height - 5 * age + 5;
+            } else {
+                bmr = 10 * weight + 6.25 * height - 5 * age - 161;
+            }
+            
+            localStorage.setItem("calories", bmr);
+            window.location.href = "resultKalori.html";
+        }
+    </script>
+</body>
+</html>
